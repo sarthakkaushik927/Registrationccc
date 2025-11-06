@@ -126,7 +126,7 @@ export default function App() {
       console.log('Form data submitted:', data);
       setSubmittedData(data); 
       setSubmitSuccess(true); 
-
+    reset();
       setTimeout(() => {
         setSubmitSuccess(false);
       }, 4000);
@@ -184,9 +184,9 @@ export default function App() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md backdrop-blur-md border border-gray-700 transform hover:scale-[1.01] transition-transform duration-300"
+          className=" p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md backdrop-blur-md border border-gray-700 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out bg-transparent bg-opacity-10"
           style={{
-            borderRadius: '40px', // More pronounced bubble effect
+            borderRadius: '40px',
             boxShadow: '0 20px 40px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.1)'
           }}
         >
