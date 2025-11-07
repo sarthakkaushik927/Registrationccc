@@ -114,7 +114,7 @@ export default function Register() {
         'https://spocc-registration-form-backend.vercel.app/api/v1/register',
         {
           ...data,
-              capchaToken: captchaToken, // ✅ correctly include token
+          captchaToken: captchaToken, // ✅ Correct key name
         },
         {
           headers: { 'Content-Type': 'application/json' },
