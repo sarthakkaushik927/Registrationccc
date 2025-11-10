@@ -215,7 +215,7 @@ export default function Register() {
                 rules={{
                   required: 'First name is required',
                   minLength: { value: 3, message: 'Min 3 characters' },
-                  pattern: { value: /^[a-z]+$/, message: 'Only lowercase letters allowed' },
+                  pattern: { value: /^[A-Za-z ]+$/, message: 'Only letters are allowed' },
                 }}
                 error={errors.name}
               />
