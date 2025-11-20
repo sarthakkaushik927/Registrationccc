@@ -14,10 +14,13 @@
     "@tailwindcss/vite": "^4.1.17",
     "axios": "^1.13.2",
     "framer-motion": "^12.23.24",
+    "gsap": "^3.13.0",
+    "ogl": "^1.0.11",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-google-recaptcha": "^3.1.0",
     "react-hook-form": "^7.66.0",
+    "react-toastify": "^11.0.5",
     "tailwindcss": "^4.1.17",
     "zod": "^4.1.12"
   },

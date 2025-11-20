@@ -2,13 +2,15 @@ import React from 'react'
 import Register from './components/Register'
 import './App.css'
 
+
 function App() {
- 
+
 
   return (
-    <>
-    < Register/>
-    </>
+    <div >
+      < Register />
+      
+    </div>
   )
 }
 
