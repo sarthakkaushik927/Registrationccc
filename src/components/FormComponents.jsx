@@ -1,20 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Helper for the specific neon blue border style from the screenshot
+// --- STYLES ---
 const inputClasses = `
-  w-full px-4 py-2.5 
-  bg-[#050505] 
-  border border-[#00aaff]/60 
-  rounded-md 
+  w-full px-4 py-3
+  bg-black/30 backdrop-blur-md
+  border border-[#00aaff]/50
+  rounded-xl
   text-white text-sm font-medium tracking-wide
-  placeholder-gray-400 
-  focus:outline-none focus:border-[#00aaff] focus:shadow-[0_0_15px_rgba(0,170,255,0.4)]
+  placeholder-gray-500
+  focus:outline-none focus:border-[#00aaff] focus:bg-black/40 focus:shadow-[0_0_20px_rgba(0,170,255,0.2)]
   transition-all duration-300
 `;
 
 export const FormInput = ({ name, type, register, error, placeholder }) => (
-  <div className="mb-2 relative z-0">
+  <div className="mb-1 relative z-0">
     <div className="relative group">
       <input
         type={type}
@@ -24,14 +24,14 @@ export const FormInput = ({ name, type, register, error, placeholder }) => (
         className={`${inputClasses} ${error ? 'border-red-500 focus:border-red-500' : ''}`}
       />
     </div>
-    <div className="min-h-[14px]">
+    <div className="min-h-[16px]">
       <AnimatePresence>
         {error && (
           <motion.p
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="text-red-400 text-[10px] mt-0.5 ml-1"
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="text-red-400 text-[10px] pl-2 pt-1"
           >
             {error.message}
           </motion.p>
@@ -41,41 +41,91 @@ export const FormInput = ({ name, type, register, error, placeholder }) => (
   </div>
 );
 
-export const FormSelect = ({ name, register, error, options, placeholder }) => (
-  <div className="mb-2 relative z-0">
-    <div className="relative">
-      <select
-        id={name}
-        {...register(name)}
-        className={`${inputClasses} appearance-none ${!register(name).value ? 'text-gray-400' : 'text-white'}`}
+// --- NEW CUSTOM SELECT COMPONENT ---
+export const FormSelect = ({ name, setValue, watch, error, options, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  
+  // Watch the current value of this field from the form
+  const selectedValue = watch(name);
+
+  // Close dropdown if clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (value) => {
+    setValue(name, value, { shouldValidate: true }); // Update form value
+    setIsOpen(false); // Close menu
+  };
+
+  return (
+    <div className="mb-1 relative w-full" ref={dropdownRef}>
+      {/* Trigger Button (Looks like the input) */}
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`${inputClasses} cursor-pointer flex items-center justify-between ${!selectedValue ? 'text-gray-400' : 'text-white'} ${error ? 'border-red-500' : ''}`}
       >
-        <option value="" className="bg-black text-gray-400">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option} value={option} className="bg-[#0b011f] text-white">
-            {option}
-          </option>
-        ))}
-      </select>
-      {/* Custom Chevron matches screenshot white/blue vibe */}
-      <div className="absolute right-3 top-3 pointer-events-none text-white">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <span>{selectedValue || placeholder}</span>
+        
+        {/* Animated Chevron */}
+        <motion.div 
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-[0_0_5px_rgba(0,170,255,0.8)]">
             <path d="M6 9l6 6 6-6" />
-        </svg>
+          </svg>
+        </motion.div>
       </div>
-    </div>
-    <div className="min-h-[14px]">
+
+      {/* The Custom Dropdown Menu */}
       <AnimatePresence>
-        {error && (
-          <motion.p
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="text-red-400 text-[10px] mt-0.5 ml-1"
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scaleY: 0.8 }}
+            animate={{ opacity: 1, y: 0, scaleY: 1 }}
+            exit={{ opacity: 0, y: -10, scaleY: 0.8 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 mt-2 p-2 bg-[#050505]/95 backdrop-blur-xl border border-[#00aaff]/30 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.9)] z-[100] max-h-60 overflow-y-auto custom-scrollbar"
           >
-            {error.message}
-          </motion.p>
+            {options.map((option) => (
+              <motion.div
+                key={option}
+                onClick={() => handleSelect(option)}
+                whileHover={{ backgroundColor: "rgba(0, 170, 255, 0.15)", x: 4 }}
+                className={`px-4 py-3 rounded-lg cursor-pointer text-sm font-medium transition-colors ${
+                  selectedValue === option ? 'text-[#00aaff] bg-[#00aaff]/10' : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                {option}
+              </motion.div>
+            ))}
+          </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Error Message */}
+      <div className="min-h-[16px]">
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="text-red-400 text-[10px] pl-2 pt-1"
+            >
+              {error.message}
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
-  </div>
-);
+  );
+};

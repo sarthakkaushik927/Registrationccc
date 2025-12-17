@@ -62,7 +62,8 @@ export default function Register() {
   const [showSplash, setShowSplash] = useState(true);
   const recaptchaRef = useRef(null);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  // Added setValue and watch for the custom dropdowns
+  const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm({
     resolver: zodResolver(registrationSchema),
     mode: 'onChange',
   });
@@ -112,25 +113,17 @@ export default function Register() {
           {/* === MAIN CONTENT WRAPPER === */}
           <div className="flex flex-col lg:flex-row flex-grow w-full">
             
-            {/* === LEFT SIDE (Event Info) === 
-                Desktop: Sticky/Fixed while scrolling.
-                Mobile: Standard Top Block.
-            */}
+            {/* === LEFT SIDE (Event Info) === */}
             <div className="w-full lg:w-1/2 relative">
                 <motion.div 
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
-                    // Sticky logic: Stays fixed on desktop viewport as you scroll the form
                     className="lg:sticky lg:top-0 lg:h-screen flex items-center justify-center p-8 lg:p-12"
                 >
                     <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/5">
                         <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-                            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="8">
-                                <circle cx="35" cy="35" r="25" />
-                                <circle cx="65" cy="35" r="25" />
-                                <circle cx="50" cy="65" r="25" />
-                            </svg>
+                            <img src="/cccLogo.png" alt="CCC Logo" className="w-10 h-10" />
                             <span className="font-bold tracking-widest text-xl">CCC</span>
                         </div>
                         <h1 className="text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
@@ -162,30 +155,67 @@ export default function Register() {
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="w-full max-w-[400px]"
                 >
-                    <div className="relative p-1 rounded-[30px]">
+                    <div className="relative p-1 rounded-[20px]">
                         {/* Outer Glow Border */}
-                        <div className="absolute inset-0 rounded-[30px] border border-[#0066cc]/40 pointer-events-none shadow-[0_0_20px_rgba(0,100,255,0.15)]"></div>
+                        <div className="absolute inset-0 rounded-[20px] border border-blue-600/30 pointer-events-none shadow-[0_0_15px_rgba(0,100,255,0.2)]"></div>
 
-                        <div className="relative bg-black/80 backdrop-blur-xl rounded-[28px] px-6 py-8 border border-white/5">
+                        {/* Form Container */}
+                        <div className="relative bg-black/30 backdrop-blur-md rounded-[18px] px-6 py-6 border border-white/5">
                             
-                            <div className="text-center mb-6">
+                            <div className="text-center mb-5">
                                 <h2 className="text-2xl font-bold text-white tracking-wide">Registration Form</h2>
                                 <p className="text-gray-400 text-sm mt-1 font-light">Event Name</p>
                             </div>
 
-                            <form onSubmit={handleSubmit(onSubmit)} noValidate className="w-full">
-                                <div className="grid grid-cols-1 gap-0">
-                                    <FormInput name="name" type="text" placeholder="Enter Name" register={register} error={errors.name} />
-                                    <FormInput name="studentNumber" type="text" placeholder="Enter Student Number" register={register} error={errors.studentNumber} />
-                                    <FormInput name="email" type="email" placeholder="Enter College Email Id" register={register} error={errors.email} />
-                                    <FormSelect name="gender" placeholder="Select Gender" register={register} error={errors.gender} options={genders} />
-                                    <FormSelect name="branch" placeholder="Branch" register={register} error={errors.branch} options={branches} />
-                                    <FormInput name="phone" type="tel" placeholder="Enter Phone Number" register={register} error={errors.phone} />
-                                    <FormInput name="unstopId" type="text" placeholder="Enter Unstop Id or (NaN)" register={register} error={errors.unstopId} />
-                                    <FormSelect name="residence" placeholder="Select Residence" register={register} error={errors.residence} options={residences} />
+                            <form onSubmit={handleSubmit(onSubmit)} noValidate className="w-full flex flex-col gap-3">
+                                
+                                <FormInput name="name" type="text" placeholder="Enter Name" register={register} error={errors.name} />
+                                
+                                <FormInput name="studentNumber" type="text" placeholder="Enter Student Number" register={register} error={errors.studentNumber} />
+                                
+                                <FormInput name="email" type="email" placeholder="Enter College Email Id" register={register} error={errors.email} />
+                                
+                                {/* SIDE-BY-SIDE: Gender & Branch */}
+                                {/* z-20 ensures this dropdown opens over the fields below it */}
+                                <div className="grid grid-cols-2 gap-3 z-20 relative"> 
+                                    <FormSelect 
+                                        name="gender" 
+                                        placeholder="Gender" 
+                                        setValue={setValue} 
+                                        watch={watch} 
+                                        error={errors.gender} 
+                                        options={genders} 
+                                    />
+                                    <FormSelect 
+                                        name="branch" 
+                                        placeholder="Branch" 
+                                        setValue={setValue} 
+                                        watch={watch} 
+                                        error={errors.branch} 
+                                        options={branches} 
+                                    />
+                                </div>
+                                
+                                <div className="relative z-10">
+                                   <FormInput name="phone" type="tel" placeholder="Enter Phone Number" register={register} error={errors.phone} />
+                                </div>
+                                
+                                <div className="relative z-0">
+                                   <FormInput name="unstopId" type="text" placeholder="Enter Unstop Id or (NaN)" register={register} error={errors.unstopId} />
+                                </div>
+                                
+                                <div className="z-20 relative">
+                                    <FormSelect 
+                                        name="residence" 
+                                        placeholder="Select Residence" 
+                                        setValue={setValue} 
+                                        watch={watch} 
+                                        error={errors.residence} 
+                                        options={residences} 
+                                    />
                                 </div>
 
-                                <div className="mt-2 flex justify-center scale-90 origin-center">
+                                <div className="mt-1 flex justify-center scale-90 origin-center z-0 relative">
                                     <ReCAPTCHA
                                         ref={recaptchaRef}
                                         sitekey="6LflnwUsAAAAAAqESrSBRCGsRPhtQjuvd1CjXbaf"
@@ -196,11 +226,11 @@ export default function Register() {
                                 </div>
 
                                 <motion.button
-                                    whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(0,130,255,0.5)" }}
+                                    whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(0,100,255,0.5)" }}
                                     whileTap={{ scale: 0.98 }}
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full mt-5 bg-gradient-to-b from-[#0055aa] to-[#003366] border border-[#00aaff]/50 text-white py-3 rounded-lg font-bold tracking-wider shadow-[0_4px_15px_rgba(0,0,0,0.5)] hover:brightness-110 transition-all"
+                                    className="w-full mt-1 bg-gradient-to-b from-[#004488] to-[#002244] border border-blue-500/50 text-white py-3 rounded-lg font-bold tracking-wider shadow-lg hover:brightness-110 transition-all z-0 relative"
                                 >
                                     {isLoading ? 'Processing...' : 'Register'}
                                 </motion.button>
@@ -211,23 +241,33 @@ export default function Register() {
             </div>
           </div>
 
-          {/* === FOOTER SECTION (Full Width, Bottom of Page) === */}
+          {/* === FOOTER SECTION === */}
           <div className="w-full relative z-10 border-t border-blue-900/30 bg-black/60 backdrop-blur-md mt-auto">
             <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col items-center justify-center text-center">
                 
                 {/* Social Icons */}
                 <div className="flex justify-center gap-6 mb-8">
-                    {['facebook', 'linkedin', 'instagram'].map((social) => (
-                            <motion.div 
-                            key={social} 
-                            whileHover={{ scale: 1.2, color: "#00aaff", borderColor: "#00aaff" }}
-                            className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 cursor-pointer bg-black/50 transition-all duration-300"
-                            >
-                            <span className="sr-only">{social}</span>
-                            {/* Simple Icon Placeholders - Replace with actual Icons if needed */}
-                            <div className="w-4 h-4 bg-current rounded-sm opacity-50"></div>
-                            </motion.div>
-                    ))}
+                    <motion.a 
+                        href="#"
+                        whileHover={{ scale: 1.2 }}
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                    >
+                        <img src='/FacebookLogo.png' alt="Facebook" className="w-10 h-10" />
+                    </motion.a>
+                    <motion.a 
+                        href="#"
+                        whileHover={{ scale: 1.2 }}
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                    >
+                        <img src='/LinkedInLogo.png' alt="LinkedIn" className="w-10 h-10" />
+                    </motion.a>
+                    <motion.a 
+                        href="#"
+                        whileHover={{ scale: 1.2 }}
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                    >
+                        <img src='/InstagramLogo.png' alt="Instagram" className="w-10 h-10" />
+                    </motion.a>
                 </div>
 
                 {/* Main Text */}
@@ -239,16 +279,12 @@ export default function Register() {
                     Empowering students to innovate, collaborate, and lead in the world of technology.
                 </p>
 
-                {/* Bottom Logo Grid Effect */}
+                {/* Bottom Logo */}
                 <div className="w-full max-w-lg relative pt-6 border-t border-white/10">
                     <p className="font-serif text-sm tracking-[0.3em] text-white/80 mb-3">Think.Develop.Deploy</p>
                     
                     <div className="flex items-center justify-center gap-3">
-                            <svg width="28" height="28" viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="8">
-                            <circle cx="35" cy="35" r="25" />
-                            <circle cx="65" cy="35" r="25" />
-                            <circle cx="50" cy="65" r="25" />
-                        </svg>
+                        <img src="/cccLogo.png" alt="CCC Logo" className="w-8 h-8" />
                         <span className="font-bold tracking-widest text-lg lg:text-xl">CLOUD COMPUTING CELL</span>
                     </div>
                 </div>
