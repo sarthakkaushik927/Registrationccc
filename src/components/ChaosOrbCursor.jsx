@@ -25,7 +25,7 @@ const ChaosOrbCursor = () => {
   return (
     <motion.div
       style={{ translateX: smoothX, translateY: smoothY, width: CURSOR_SIZE, height: CURSOR_SIZE }}
-      className="fixed top-0 left-0 pointer-events-none z-[10] flex items-center justify-center hidden md:flex"
+      className="fixed top-0 left-0 pointer-events-none z-[10] flex items-center justify-center hidden md:flex opacity-15"
     >
       {/* 1. Outer Shell - Made subtler to blend with background */}
       {/* Very low opacity blue tint, high blur, soft large blue shadow instead of border */}
@@ -61,7 +61,7 @@ const ChaosOrbCursor = () => {
             ease: "easeInOut"
         }}
         // Base size and blur for the nucleus
-        className="w-14 h-14 rounded-full blur-md"
+        className="w-14 h-14 rounded-full blur-md "
       />
     </motion.div>
   );
