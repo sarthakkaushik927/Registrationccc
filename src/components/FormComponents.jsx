@@ -93,7 +93,7 @@ export const FormSelect = ({ name, setValue, watch, error, options, placeholder 
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
             exit={{ opacity: 0, y: -10, scaleY: 0.8 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 mt-2 p-2 bg-[#050505]/95 backdrop-blur-xl border border-[#00aaff]/30 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.9)] z-[100] max-h-60 overflow-y-auto custom-scrollbar"
+            className="absolute top-full left-0 right-0 mt-2 p-2 bg-[#050505]/95 backdrop-blur-xl border border-[#00aaff]/30 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.9)] z-100 max-h-60 overflow-y-auto custom-scrollbar"
           >
             {options.map((option) => (
               <motion.div
