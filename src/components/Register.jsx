@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'; // Added useRef
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
 import { z } from 'zod';
@@ -8,155 +8,33 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { NetworkBackground } from './NetworkBackground';
+import { SplashScreen } from './SplashScreen';
+import { FormInput, FormSelect } from './FormComponents';
+
 // --- CONFIGURATION ---
-const branches = [
-  'CSE', 'CSE (AIML)', 'CSE (DS)', 'AIML', 'CS', 'CS (H)', 'IT', 'CSIT', 'ECE', 'EEE', 'Civil', 'Mechanical'
-];
+const branches = ['CSE', 'CSE (AIML)', 'CSE (DS)', 'AIML', 'CS', 'CS (H)', 'IT', 'CSIT', 'ECE', 'EEE', 'Civil', 'Mechanical'];
 const genders = ['Male', 'Female'];
 const residences = ['Day Scholar', 'Hosteller'];
 
-// --- ZOD VALIDATION SCHEMA ---
+// --- ZOD SCHEMA ---
 const registrationSchema = z.object({
-  name: z.string({ required_error: "Name is required" })
-    .trim()
-    .nonempty("Name is required")
-    .min(3, 'Name must be at least 3 characters')
-    .max(50, 'Name must be 50 characters or less')
-    .regex(/^[A-Za-z ]+$/, 'Only letters and spaces are allowed'),
-    
-  studentNumber: z.string({ required_error: "Student number is required" })
-    .trim()
-    .nonempty("Student number is required")
-    .refine(val => /^[0-9]*$/.test(val), { message: "Only numbers are allowed" })
-    .refine(val => val.startsWith('24'), { message: "Must start with 24" })
-    .refine(val => val.length >= 7 && val.length <= 9, { message: "Must be 7 to 9 digits total" }),
-    
-  email: z.string({ required_error: "Email is required" })
-    .trim()
-    .nonempty("Email is required")
-    .email("Invalid email format")
-    .toLowerCase(),
-    
-  gender: z.enum(genders, { required_error: 'Select a gender' }),
-  branch: z.enum(branches, { required_error: 'Select a branch' }),
-  
-  phone: z.string({ required_error: "Phone number is required" })
-    .trim()
-    .nonempty("Phone number is required")
-    .refine(val => /^[0-9]*$/.test(val), { message: "Only numbers are allowed" })
-    .refine(val => /^[6-9]/.test(val), { message: "Must start with 6, 7, 8, or 9" })
-    .refine(val => val.length === 10, { message: "Must be exactly 10 digits" }),
-    
-  unstopId: z.string({ required_error: "Unstop ID is required" })
-    .trim()
-    .nonempty("Unstop ID is required")
-    .max(20, 'Max 20 characters')
-    .refine(val => /^[a-zA-Z0-9]+$/.test(val), { message: "Only letters and numbers allowed" })
-    .refine(val => /^[a-zA-Z]/.test(val), { message: "Must start with a letter" })
-    .refine(val => /^[a-zA-Z]{3,}/.test(val), { message: "Must start with at least 3 letters" }),
-    
+  name: z.string().trim().nonempty("Name is required").min(3, 'Min 3 chars').max(50).regex(/^[A-Za-z ]+$/, 'Letters only'),
+  studentNumber: z.string().trim().nonempty("Required").refine(val => /^[0-9]*$/.test(val), "Numbers only").refine(val => val.startsWith('24'), "Must start with 24").refine(val => val.length >= 7 && val.length <= 9, "7-9 digits"),
+  email: z.string().trim().nonempty("Required").email("Invalid email").toLowerCase(),
+  gender: z.enum(genders, { required_error: 'Select gender' }),
+  branch: z.enum(branches, { required_error: 'Select branch' }),
+  phone: z.string().trim().nonempty("Required").refine(val => /^[0-9]*$/.test(val), "Numbers only").refine(val => /^[6-9]/.test(val), "Start with 6-9").refine(val => val.length === 10, "10 digits"),
+  unstopId: z.string().trim().nonempty("Required").max(20).refine(val => /^[a-zA-Z]/.test(val), "Start with letter"),
   residence: z.enum(residences, { required_error: 'Select residence' }),
-    
-}).superRefine((data, ctx) => {
-  if (data.email) {
-    if (!data.name) {
-      ctx.addIssue({ code: "custom", message: "Please fill Name first", path: ["email"] });
-      return;
-    }
-    if (!data.studentNumber) {
-      ctx.addIssue({ code: "custom", message: "Please fill Student Number first", path: ["email"] });
-      return;
-    }
-
-    const namePrefix = data.name.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
-    
-    if (namePrefix.length === 0) {
-      ctx.addIssue({ code: "custom", message: "Valid name needed", path: ["name"] });
-      return;
-    }
-
-    const expectedEmail = `${namePrefix}${data.studentNumber}@akgec.ac.in`;
-    
-    if (data.email.toLowerCase() !== expectedEmail) {
-      ctx.addIssue({
-        code: "custom",
-        message: `Student Number must match the College ID (e.g., ${expectedEmail})`,
-        path: ["email"],
-      });
-    }
-  }
 });
 
-// --- FORM COMPONENTS ---
-const FormInput = ({ name, type, register, error, placeholder }) => (
-  <div className="mb-1 relative z-0">
-    <input
-      type={type}
-      id={name}
-      placeholder={placeholder}
-      {...register(name)}
-      className={`w-full p-3 border rounded-lg bg-[#2c283d] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-        error ? 'border-red-500' : 'border-gray-700'
-      }`}
-    />
-    <div className="min-h-[1.25rem]">
-      <AnimatePresence>
-        {error && (
-          <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="text-red-400 text-xs mt-1"
-          >
-            {error.message}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    </div>
-  </div>
-);
-
-const FormSelect = ({ name, register, error, options, placeholder }) => (
-  <div className="mb-1 relative z-0">
-    <select
-      id={name}
-      {...register(name)}
-      className={`w-full p-3 border rounded-lg bg-[#2c283d] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-        error ? 'border-red-500' : 'border-gray-600'
-      } ${!register(name).value ? 'text-gray-400' : 'text-white'}`}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option} value={option} className="bg-gray-800 text-white">
-          {option}
-        </option>
-      ))}
-    </select>
-    <div className="min-h-[1.25rem]">
-      <AnimatePresence>
-        {error && (
-          <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="text-red-400 text-xs mt-1"
-          >
-            {error.message}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    </div>
-  </div>
-);
-
+// --- CURSOR ---
 const DelayedCursor = () => {
   const CURSOR_SIZE = 110;
-
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-
   const springConfig = { damping: 25, stiffness: 150, mass: 0.5 };
-  
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
 
@@ -166,231 +44,219 @@ const DelayedCursor = () => {
       mouseX.set(clientX - CURSOR_SIZE / 2);
       mouseY.set(clientY - CURSOR_SIZE / 2);
     };
-
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
 
   return (
     <motion.div
-      style={{
-        translateX: smoothX,
-        translateY: smoothY,
-        width: CURSOR_SIZE,
-        height: CURSOR_SIZE,
-      }}
-      className="fixed top-0 left-0 rounded-full pointer-events-none z-50 backdrop-blur-[2px] border border-white/20 bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+      style={{ translateX: smoothX, translateY: smoothY, width: CURSOR_SIZE, height: CURSOR_SIZE }}
+      className="fixed top-0 left-0 rounded-full pointer-events-none z-40 backdrop-blur-[1px] border border-blue-400/20 bg-blue-500/5 shadow-[0_0_15px_rgba(0,100,255,0.1)] hidden md:block"
     />
   );
 };
 
-// --- MAIN PAGE COMPONENT ---
 export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState(null);
-  
-  // 1. Initialize ref
+  const [showSplash, setShowSplash] = useState(true);
   const recaptchaRef = useRef(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    watch,
-    trigger,
-  } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: zodResolver(registrationSchema),
     mode: 'onChange',
   });
-
-  const watchedName = watch('name');
-  const watchedStudentNumber = watch('studentNumber');
-  const watchedEmail = watch('email'); 
-
-  useEffect(() => {
-    if (watchedEmail) {
-      trigger('email');
-    }
-  }, [watchedName, watchedStudentNumber, trigger, watchedEmail]);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
       if (!captchaToken) {
-        toast.error("Please complete the CAPTCHA before submitting.");
+        toast.error("Complete CAPTCHA");
         setIsLoading(false);
         return;
       }
-
       const response = await axios.post(
         'https://spocc-registration-form-backend.vercel.app/api/v1/register',
         { ...data, captchaToken: captchaToken },
         { headers: { 'Content-Type': 'application/json' } }
       );
-
-      console.log('API Response:', response.data);
-      toast.success("Success! Form submitted successfully.");
-      
-      // Reset Form
+      toast.success("Registration Successful!");
       reset();
-      
-      // Reset Captcha State
       setCaptchaToken(null);
-      
-      // 3. Reset the actual Captcha Widget
-      if (recaptchaRef.current) {
-        recaptchaRef.current.reset();
-      }
-
+      recaptchaRef.current?.reset();
     } catch (error) {
-      console.error('API Error:', error.response ? error.response.data : error.message);
-      const apiErrorMessage =
-        error.response?.data?.message || 'Failed to register. Please try again later.';
-      toast.error(`Error! ${apiErrorMessage}`);
-      
-      // Optional: Reset captcha on error too if you want to force re-verification
+      toast.error(error.response?.data?.message || 'Registration failed');
       setCaptchaToken(null);
-      if (recaptchaRef.current) {
-        recaptchaRef.current.reset();
-      }
-
+      recaptchaRef.current?.reset();
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden flex font-sans bg-[#0b011f]">
-      
-      {/* --- THE DELAYED BUBBLE --- */}
+    <div className="relative min-h-screen w-full flex flex-col font-sans bg-[#000000] text-white selection:bg-blue-500/30">
       <DelayedCursor />
       
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        theme="dark"
-      />
-      
-      {/* Left Side - Image */}
-      <div className="hidden lg:flex w-1/2 items-center justify-center p-8 z-20">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="relative w-full max-w-lg h-[600px] bg-cover bg-center rounded-2xl p-6"
-          style={{ backgroundImage: "url('path/to/your/classroom-image.jpg')" }} 
-        >
-          <div className="relative z-10 flex flex-col justify-between h-full">
-            <span className="text-4xl text-white opacity-75">
-              &#x2699;
-            </span>
-            <div className="flex-grow flex items-center justify-center">
-              <div className="p-4 bg-black bg-opacity-30 backdrop-blur-md rounded-full">
-                <span className="text-8xl text-white">
-                  &#x1F4D6;
-                </span>
-              </div>
+      {/* Fixed Background */}
+      <div className="fixed inset-0 z-0">
+         <NetworkBackground />
+      </div>
+
+      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
+
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+
+      {!showSplash && (
+        <div className="relative z-10 flex flex-col min-h-screen">
+          
+          {/* === MAIN CONTENT WRAPPER === */}
+          <div className="flex flex-col lg:flex-row flex-grow w-full">
+            
+            {/* === LEFT SIDE (Event Info) === 
+                Desktop: Sticky/Fixed while scrolling.
+                Mobile: Standard Top Block.
+            */}
+            <div className="w-full lg:w-1/2 relative">
+                <motion.div 
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8 }}
+                    // Sticky logic: Stays fixed on desktop viewport as you scroll the form
+                    className="lg:sticky lg:top-0 lg:h-screen flex items-center justify-center p-8 lg:p-12"
+                >
+                    <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/5">
+                        <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
+                            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="8">
+                                <circle cx="35" cy="35" r="25" />
+                                <circle cx="65" cy="35" r="25" />
+                                <circle cx="50" cy="65" r="25" />
+                            </svg>
+                            <span className="font-bold tracking-widest text-xl">CCC</span>
+                        </div>
+                        <h1 className="text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
+                            Future of <br/> <span className="text-[#00aaff]">Cloud</span>
+                        </h1>
+                        <p className="text-gray-400 text-base leading-relaxed mb-8">
+                            Think, Develop, and Deploy your ideas into reality.
+                        </p>
+                        <div className="inline-flex gap-8 bg-black/40 border border-[#00aaff]/30 rounded-xl p-4">
+                            <div>
+                                <p className="text-[10px] text-blue-300 uppercase tracking-wider">Date</p>
+                                <p className="font-bold text-sm">Oct 24, 2024</p>
+                            </div>
+                            <div className="w-px h-10 bg-[#00aaff]/30"></div>
+                            <div>
+                                <p className="text-[10px] text-blue-300 uppercase tracking-wider">Venue</p>
+                                <p className="font-bold text-sm">Main Auditorium</p>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+
+            {/* === RIGHT SIDE (Form Only) === */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:py-12">
+                <motion.div 
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="w-full max-w-[400px]"
+                >
+                    <div className="relative p-1 rounded-[30px]">
+                        {/* Outer Glow Border */}
+                        <div className="absolute inset-0 rounded-[30px] border border-[#0066cc]/40 pointer-events-none shadow-[0_0_20px_rgba(0,100,255,0.15)]"></div>
+
+                        <div className="relative bg-black/80 backdrop-blur-xl rounded-[28px] px-6 py-8 border border-white/5">
+                            
+                            <div className="text-center mb-6">
+                                <h2 className="text-2xl font-bold text-white tracking-wide">Registration Form</h2>
+                                <p className="text-gray-400 text-sm mt-1 font-light">Event Name</p>
+                            </div>
+
+                            <form onSubmit={handleSubmit(onSubmit)} noValidate className="w-full">
+                                <div className="grid grid-cols-1 gap-0">
+                                    <FormInput name="name" type="text" placeholder="Enter Name" register={register} error={errors.name} />
+                                    <FormInput name="studentNumber" type="text" placeholder="Enter Student Number" register={register} error={errors.studentNumber} />
+                                    <FormInput name="email" type="email" placeholder="Enter College Email Id" register={register} error={errors.email} />
+                                    <FormSelect name="gender" placeholder="Select Gender" register={register} error={errors.gender} options={genders} />
+                                    <FormSelect name="branch" placeholder="Branch" register={register} error={errors.branch} options={branches} />
+                                    <FormInput name="phone" type="tel" placeholder="Enter Phone Number" register={register} error={errors.phone} />
+                                    <FormInput name="unstopId" type="text" placeholder="Enter Unstop Id or (NaN)" register={register} error={errors.unstopId} />
+                                    <FormSelect name="residence" placeholder="Select Residence" register={register} error={errors.residence} options={residences} />
+                                </div>
+
+                                <div className="mt-2 flex justify-center scale-90 origin-center">
+                                    <ReCAPTCHA
+                                        ref={recaptchaRef}
+                                        sitekey="6LflnwUsAAAAAAqESrSBRCGsRPhtQjuvd1CjXbaf"
+                                        onChange={(token) => setCaptchaToken(token)}
+                                        theme="dark"
+                                        size="normal"
+                                    />
+                                </div>
+
+                                <motion.button
+                                    whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(0,130,255,0.5)" }}
+                                    whileTap={{ scale: 0.98 }}
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full mt-5 bg-gradient-to-b from-[#0055aa] to-[#003366] border border-[#00aaff]/50 text-white py-3 rounded-lg font-bold tracking-wider shadow-[0_4px_15px_rgba(0,0,0,0.5)] hover:brightness-110 transition-all"
+                                >
+                                    {isLoading ? 'Processing...' : 'Register'}
+                                </motion.button>
+                            </form>
+                        </div>
+                    </div>
+                </motion.div>
             </div>
           </div>
-          <div className="absolute inset-0 bg-black opacity-40 rounded-2xl"></div>
-        </motion.div>
-      </div>
 
-      {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 z-20">
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="bg-[#1e1a2f] p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-gray-700 relative"
-        >
-          <h1 className="text-3xl font-serif text-center text-white mb-6">
-            Registration Form
-          </h1>
+          {/* === FOOTER SECTION (Full Width, Bottom of Page) === */}
+          <div className="w-full relative z-10 border-t border-blue-900/30 bg-black/60 backdrop-blur-md mt-auto">
+            <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col items-center justify-center text-center">
+                
+                {/* Social Icons */}
+                <div className="flex justify-center gap-6 mb-8">
+                    {['facebook', 'linkedin', 'instagram'].map((social) => (
+                            <motion.div 
+                            key={social} 
+                            whileHover={{ scale: 1.2, color: "#00aaff", borderColor: "#00aaff" }}
+                            className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 cursor-pointer bg-black/50 transition-all duration-300"
+                            >
+                            <span className="sr-only">{social}</span>
+                            {/* Simple Icon Placeholders - Replace with actual Icons if needed */}
+                            <div className="w-4 h-4 bg-current rounded-sm opacity-50"></div>
+                            </motion.div>
+                    ))}
+                </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <FormInput
-              name="name"
-              type="text"
-              placeholder="Enter Name"
-              register={register}
-              error={errors.name}
-            />
-            <FormInput
-              name="studentNumber"
-              type="text"
-              placeholder="Enter Student Number"
-              register={register}
-              error={errors.studentNumber}
-            />
-            <FormInput
-              name="email"
-              type="email"
-              placeholder="Enter College Email Id"
-              register={register}
-              error={errors.email}
-            />
-            <FormSelect
-              name="gender"
-              placeholder="Select Gender"
-              register={register}
-              error={errors.gender}
-              options={genders}
-            />
-            <FormSelect
-              name="branch"
-              placeholder="Branch"
-              register={register}
-              error={errors.branch}
-              options={branches}
-            />
-            <FormInput
-              name="phone"
-              type="tel"
-              placeholder="Enter Phone Number"
-              register={register}
-              error={errors.phone}
-            />
-            <FormInput
-              name="unstopId"
-              type="text"
-              placeholder="Enter Unstop ID"
-              register={register}
-              error={errors.unstopId}
-            />
-            <FormSelect
-              name="residence"
-              placeholder="Select residence"
-              register={register}
-              error={errors.residence}
-              options={residences}
-            />
+                {/* Main Text */}
+                <h3 className="font-serif text-3xl lg:text-4xl text-white mb-3">
+                    Be part of the future of <span className="font-bold text-[#00aaff] drop-shadow-[0_0_10px_rgba(0,170,255,0.5)]">Cloud Computing</span>
+                </h3>
+                
+                <p className="text-xs lg:text-sm text-gray-400 max-w-md mx-auto mb-10 leading-relaxed">
+                    Empowering students to innovate, collaborate, and lead in the world of technology.
+                </p>
 
-            <div className="mt-4 flex justify-center relative z-10">
-              {/* 2. Attach the ref to ReCAPTCHA */}
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey="6LflnwUsAAAAAAqESrSBRCGsRPhtQjuvd1CjXbaf"
-                onChange={(token) => setCaptchaToken(token)}
-                theme="dark"
-              />
+                {/* Bottom Logo Grid Effect */}
+                <div className="w-full max-w-lg relative pt-6 border-t border-white/10">
+                    <p className="font-serif text-sm tracking-[0.3em] text-white/80 mb-3">Think.Develop.Deploy</p>
+                    
+                    <div className="flex items-center justify-center gap-3">
+                            <svg width="28" height="28" viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="8">
+                            <circle cx="35" cy="35" r="25" />
+                            <circle cx="65" cy="35" r="25" />
+                            <circle cx="50" cy="65" r="25" />
+                        </svg>
+                        <span className="font-bold tracking-widest text-lg lg:text-xl">CLOUD COMPUTING CELL</span>
+                    </div>
+                </div>
             </div>
+          </div>
 
-            <div className="mt-6 relative z-10">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-purple-600 text-white p-3 rounded-lg font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
-              >
-                {isLoading ? 'Submitting...' : 'Submit'}
-              </motion.button>
-            </div>
-          </form>
-        </motion.div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
