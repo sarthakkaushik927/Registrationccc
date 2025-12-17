@@ -8,13 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SparklesCore } from "./ui/sparkles";
-// IMPORT ICONS
-import { Cloud, Facebook, Linkedin, Instagram } from 'lucide-react';
+// IMPORT SOCIAL ICONS (Keeping these from library as requested)
+import { Facebook, Linkedin, Instagram } from 'lucide-react';
 
 import { NetworkBackground } from './NetworkBackground';
 import { SplashScreen } from './SplashScreen';
 import { FormInput, FormSelect } from './FormComponents';
-// IMPORT THE NEW CURSOR
 import ChaosOrbCursor from './ChaosOrbCursor';
 
 // --- CONFIGURATION ---
@@ -33,16 +32,6 @@ const registrationSchema = z.object({
   unstopId: z.string().trim().nonempty("Required").max(20).refine(val => /^[a-zA-Z]/.test(val), "Start with letter"),
   residence: z.enum(residences, { required_error: 'Select residence' }),
 });
-
-// --- CUSTOM LOGO COMPONENT ---
-const CCCLogo = ({ className }) => (
-  <div className={`relative flex items-center justify-center ${className}`}>
-    <Cloud className="w-full h-full text-[#00aaff] drop-shadow-[0_0_10px_rgba(0,170,255,0.8)]" strokeWidth={1.5} />
-    <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[10px] font-bold text-white drop-shadow-md pt-1">CCC</span>
-    </div>
-  </div>
-);
 
 export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +73,7 @@ export default function Register() {
   return (
     <div className="relative min-h-screen w-full flex flex-col font-sans bg-[#000000] text-white selection:bg-blue-500/30">
       
-      {/* NEW CURSOR IMPORTED HERE */}
+      {/* NEW CURSOR */}
       <ChaosOrbCursor />
 
       {/* Fixed Background */}
@@ -112,8 +101,9 @@ export default function Register() {
               >
                 <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/5">
                   <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-                    <CCCLogo className="w-12 h-12" />
-                    <span className="font-bold tracking-widest text-xl pt-2">CCC</span>
+                    {/* RESTORED OLD CCC LOGO IMAGE */}
+                    <img src="/cccLogo.png" alt="CCC Logo" className="w-10 h-10 object-contain" />
+                    <span className="font-bold tracking-widest text-xl pt-1">CCC</span>
                   </div>
                   <h1 className="text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
                     Future of <br /> <span className="text-[#00aaff]">Cloud</span>
@@ -156,29 +146,43 @@ export default function Register() {
                       <p className="text-gray-400 text-sm mt-1 font-light">Event Name</p>
                     </div>
 
+                    {/* CASCADING Z-INDEX FIX */}
                     <form onSubmit={handleSubmit(onSubmit)} noValidate className="w-full flex flex-col gap-1">
 
-                      <FormInput name="name" type="text" placeholder="Enter Name" register={register} error={errors.name} />
-                      <FormInput name="studentNumber" type="text" placeholder="Enter Student Number" register={register} error={errors.studentNumber} />
-                      <FormInput name="email" type="email" placeholder="Enter College Email Id" register={register} error={errors.email} />
+                      <div className="relative z-[60]">
+                        <FormInput name="name" type="text" placeholder="Enter Name" register={register} error={errors.name} />
+                      </div>
 
-                      <div className="grid grid-cols-2 gap-1 z-20 relative">
+                      <div className="relative z-[60]">
+                        <FormInput name="studentNumber" type="text" placeholder="Enter Student Number" register={register} error={errors.studentNumber} />
+                      </div>
+
+                      <div className="relative z-[60]">
+                         <FormInput name="email" type="email" placeholder="Enter College Email Id" register={register} error={errors.email} />
+                      </div>
+
+                      {/* SIDE-BY-SIDE: Gender & Branch (z-50) */}
+                      <div className="grid grid-cols-2 gap-1 z-50 relative">
                         <FormSelect name="gender" placeholder="Gender" setValue={setValue} watch={watch} error={errors.gender} options={genders} />
                         <FormSelect name="branch" placeholder="Branch" setValue={setValue} watch={watch} error={errors.branch} options={branches} />
                       </div>
 
-                      <div className="relative z-10">
+                      {/* Phone (z-40) */}
+                      <div className="relative z-40">
                         <FormInput name="phone" type="tel" placeholder="Enter Phone Number" register={register} error={errors.phone} />
                       </div>
 
-                      <div className="relative z-0">
+                      {/* Unstop ID (z-30) */}
+                      <div className="relative z-30">
                         <FormInput name="unstopId" type="text" placeholder="Enter Unstop Id or (NaN)" register={register} error={errors.unstopId} />
                       </div>
 
-                      <div className="relative z-0">
+                      {/* Residence (z-20) - FIXED: Higher than Recaptcha */}
+                      <div className="relative z-20">
                         <FormSelect name="residence" placeholder="Select Residence" setValue={setValue} watch={watch} error={errors.residence} options={residences} />
                       </div>
 
+                      {/* ReCAPTCHA & Button (z-0) */}
                       <div className="mt-1 flex justify-center scale-90 origin-center z-0 relative">
                         <ReCAPTCHA
                           ref={recaptchaRef}
@@ -206,7 +210,7 @@ export default function Register() {
           </div>
 
           {/* === FOOTER SECTION === */}
-          <div className="w-full relative z-100 border-t border-blue-900/30 bg-black/60 backdrop-blur-md mt-auto">
+          <div className="w-full relative z-10 border-t border-blue-900/30 bg-black/60 backdrop-blur-md mt-auto">
             <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col items-center justify-center text-center">
 
               {/* Social Icons - USING LUCIDE REACT ICONS */}
@@ -250,7 +254,8 @@ export default function Register() {
                 <div className="relative w-full h-40 flex flex-col items-center justify-start pt-4">
                     
                     <div className="flex items-center gap-4 relative z-50">
-                         <CCCLogo className="w-12 h-12" />
+                         {/* RESTORED OLD CCC LOGO IMAGE */}
+                         <img src="/cccLogo.png" alt="CCC Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(0,170,255,0.5)]" />
                          <h1 className="text-2xl md:text-5xl font-bold text-center text-white tracking-widest drop-shadow-2xl">
                             CLOUD COMPUTING CELL
                          </h1>
