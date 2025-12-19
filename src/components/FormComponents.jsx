@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // --- STYLES ---
 const inputClasses = `
   w-full px-4 py-3
-  bg-black/30 backdrop-blur-md
+  bg-black/30 
   border border-[#00aaff]/50
   rounded-xl
   text-white text-sm font-medium tracking-wide
