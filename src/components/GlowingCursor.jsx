@@ -93,9 +93,9 @@ const GlowingCursor = () => {
         className="absolute top-0 left-0 w-5 h-5 hidden md:block"
       >
         <div 
-          className="w-full h-full bg-cyan-100 rounded-full border border-cyan-300"
+          className="w-full h-full bg-blue-400 rounded-full border border-blue-500"
           style={{ 
-            boxShadow: "0 0 10px 2px rgba(34, 211, 238, 0.8), 0 0 20px 5px rgba(59, 130, 246, 0.4)" 
+            boxShadow: "0 0 10px 2px rgba(34, 211, 238, 0.8), 0 0 20px 15px rgba(59, 130, 246, 0.4)" 
           }}
         />
       </motion.div>
