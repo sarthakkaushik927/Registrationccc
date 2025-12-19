@@ -11,6 +11,7 @@ const inputClasses = `
   placeholder-gray-500
   focus:outline-none focus:border-[#00aaff] focus:bg-black/40 focus:shadow-[0_0_20px_rgba(0,170,255,0.2)]
   transition-all duration-300
+  border border-blue-600/60  shadow-[0_0_55px_rgba(0,100,255,0.5)]
 `;
 
 export const FormInput = ({ name, type, register, error, placeholder }) => (
