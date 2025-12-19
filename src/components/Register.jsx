@@ -101,7 +101,7 @@ export default function Register() {
                 transition={{ duration: 0.8 }}
                 className="lg:sticky lg:top-0 lg:h-screen flex items-center justify-center p-8 lg:p-12"
               >
-                <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-black/20 backdrop-blur-sm inset-0 rounded-[20px] border border-blue-600/60 pointer-events-none shadow-[0_0_55px_rgba(0,100,255,0.5)]">
+                <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-transparent backdrop-blur-md inset-0 rounded-[20px] border border-blue-600/60 pointer-events-none shadow-[0_0_55px_rgba(0,100,255,0.5)]">
                   <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
                     {/* OLD CCC LOGO RESTORED */}
                     <img src="/cccLogo.png" alt="CCC Logo" className="w-10 h-10 object-contain" />
@@ -208,45 +208,10 @@ export default function Register() {
           </div>
 
           {/* === FOOTER SECTION === */}
-          <div className="w-full relative z-10 border-t border-blue-900/30 bg-black/60 backdrop-blur-md mt-auto">
+          <div className="w-full relative z-10   bg-transparent  mt-auto">
             <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col items-center justify-center text-center">
-
-              {/* Social Icons */}
-              <div className="flex justify-center gap-6 mb-8 relative z-50">
-                <motion.a
-                  href="#"
-                  whileHover={{ scale: 1.2, color: "#00aaff" }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-gray-400 hover:text-[#00aaff]"
-                >
-                  <Facebook className="w-8 h-8" strokeWidth={1.5} />
-                </motion.a>
-                <motion.a
-                  href="#"
-                  whileHover={{ scale: 1.2, color: "#00aaff" }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-gray-400 hover:text-[#00aaff]"
-                >
-                   <Linkedin className="w-8 h-8" strokeWidth={1.5} />
-                </motion.a>
-                <motion.a
-                  href="#"
-                  whileHover={{ scale: 1.2, color: "#00aaff" }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-gray-400 hover:text-[#00aaff]"
-                >
-                   <Instagram className="w-8 h-8" strokeWidth={1.5} />
-                </motion.a>
-              </div>
-
-              {/* Main Text */}
-              <h3 className="font-serif text-3xl lg:text-4xl text-white mb-3">
-                Be part of the future of <span className="font-bold text-[#00aaff] drop-shadow-[0_0_10px_rgba(0,170,255,0.5)]">Cloud Computing</span>
-              </h3>
-
-              <p className="text-xs lg:text-sm text-gray-400 max-w-md mx-auto mb-10 leading-relaxed">
-                Empowering students to innovate, collaborate, and lead in the world of technology.
-              </p>
-
-              {/* === FOOTER LOGO & SPARKLES === */}
-              <div className="w-full relative pt-10 pb-6 border-t border-white/10 flex flex-col items-center">
+               {/* === FOOTER LOGO & SPARKLES === */}
+              <div className="w-full relative  pb-6   flex flex-col items-center">
                 <p className="font-serif text-sm tracking-[0.3em] text-white/80 mb-2 relative z-50">Think.Develop.Deploy</p>
                 
                 <div className="relative w-full h-40 flex flex-col items-center justify-start pt-4">
@@ -277,6 +242,44 @@ export default function Register() {
                 </div>
               </div>
 
+              {/* Social Icons */}
+              <div className='bg-black w-full '>
+              <div className=" flex justify-center gap-6 mb-8 relative z-50">
+                <motion.a
+                  href="#"
+                  whileHover={{ scale: 1.2, color: "#00aaff" }}
+                  className=" w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-gray-400 hover:text-[#00aaff]"
+                >
+                  <Facebook className="w-8 h-8" strokeWidth={1.5} />
+                </motion.a>
+                <motion.a
+                  href="#"
+                  whileHover={{ scale: 1.2, color: "#00aaff" }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-gray-400 hover:text-[#00aaff]"
+                >
+                   <Linkedin className="w-8 h-8" strokeWidth={1.5} />
+                </motion.a>
+                <motion.a
+                  href="#"
+                  whileHover={{ scale: 1.2, color: "#00aaff" }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-gray-400 hover:text-[#00aaff]"
+                >
+                   <Instagram className="w-8 h-8" strokeWidth={1.5} />
+                </motion.a>
+              </div>
+
+              {/* Main Text */}
+              <h3 className=" font-serif text-3xl lg:text-4xl text-white mb-3">
+                Be part of the future of <span className="font-bold text-[#00aaff] drop-shadow-[0_0_10px_rgba(0,170,255,0.5)]">Cloud Computing</span>
+              </h3>
+
+              <p className="text-xs lg:text-sm text-gray-400 max-w-md mx-auto mb-10 leading-relaxed">
+                Empowering students to innovate, collaborate, and lead in the world of technology.
+              </p>
+                          
+             
+
+            </div>
             </div>
           </div>
 

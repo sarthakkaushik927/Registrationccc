@@ -6,7 +6,7 @@ const inputClasses = `
   w-full px-4 py-3
   bg-black/30 
   border border-[#00aaff]/50
-  rounded-xl
+  rounded-[10px]
   text-white text-sm font-medium tracking-wide
   placeholder-gray-500
   focus:outline-none focus:border-[#00aaff] focus:bg-black/40 focus:shadow-[0_0_20px_rgba(0,170,255,0.2)]
