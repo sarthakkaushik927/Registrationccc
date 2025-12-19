@@ -101,7 +101,7 @@ export default function Register() {
                 transition={{ duration: 0.8 }}
                 className="lg:sticky lg:top-0 lg:h-screen flex items-center justify-center p-8 lg:p-12"
               >
-                <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/5">
+                <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-black/20 backdrop-blur-sm inset-0 rounded-[20px] border border-blue-600/60 pointer-events-none shadow-[0_0_55px_rgba(0,100,255,0.5)]">
                   <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
                     {/* OLD CCC LOGO RESTORED */}
                     <img src="/cccLogo.png" alt="CCC Logo" className="w-10 h-10 object-contain" />
@@ -138,7 +138,7 @@ export default function Register() {
               >
                 <div className="relative p-1 rounded-[20px]">
                   {/* Outer Glow Border */}
-                  <div className="absolute inset-0 rounded-[20px] border border-blue-600/30 pointer-events-none shadow-[0_0_15px_rgba(0,100,255,0.2)]"></div>
+                  <div className="absolute inset-0 rounded-[20px] border border-blue-600/60 pointer-events-none shadow-[0_0_55px_rgba(0,100,255,0.5)]"></div>
 
                   {/* Form Container */}
                   <div className="relative bg-transparent rounded-[18px] px-6 py-6 border border-white/5">
@@ -196,7 +196,7 @@ export default function Register() {
                         whileTap={{ scale: 0.98 }}
                         type="submit"
                         disabled={isLoading}
-                        className="w-full mt-1 bg-gradient-to-b from-[#004488] to-[#002244] border border-blue-500/50 text-white py-3 rounded-lg font-bold tracking-wider shadow-lg hover:brightness-110 transition-all z-0 relative"
+                        className="w-full mt-1 bg-gradient-to-b from-[#004488] to-[#002244] border border-blue-500/50 text-white py-3 rounded-lg font-bold tracking-wider shadow-lg hover:brightness-110 transition-all z-0 relative opacity-70"
                       >
                         {isLoading ? 'Processing...' : 'Register'}
                       </motion.button>
@@ -258,10 +258,11 @@ export default function Register() {
                             CLOUD COMPUTING CELL
                          </h1>
                     </div>
-
-                    <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full z-0 pointer-events-none">
-                        <div className="absolute inset-x-0 top-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-full blur-sm" />
-                        <div className="absolute inset-x-0 top-1/2 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-px w-full" />
+                     <div className="absolute inset-x-0 top-1/2 bg-gradient-to-r from-transparent via-blue-500 to-transparent h-[2px] w-full blur-sm" />
+                        <div className="absolute inset-x-0 top-1/2 bg-gradient-to-r from-transparent via-blue-500 to-transparent h-px w-full" />
+                    <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full z-0 pointer-events-none">
+                        {/* <div className="absolute inset-x-0 top-1/2 bg-gradient-to-r from-transparent via-blue-500 to-transparent h-[2px] w-full blur-sm" />
+                        <div className="absolute inset-x-0 top-1/2 bg-gradient-to-r from-transparent via-blue-500 to-transparent h-px w-full" /> */}
                         
                         <SparklesCore
                             background="transparent"
