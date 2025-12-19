@@ -4,43 +4,39 @@ import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motio
 const GlowingCursor = () => {
   const CURSOR_SIZE = 20;
 
-  // --- 1. MOUSE TRACKING ---
+  // --- 1. MOUSE TRACKING (INSTANT / SNAPPY) ---
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
 
-  const springConfig = { damping: 20, stiffness: 400, mass: 0.5 };
+  // CHANGED: High stiffness + Low mass = Instant tracking (No delay)
+  const springConfig = { damping: 20, stiffness: 2000, mass: 0.1 };
+  
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
 
   // --- 2. STATE FOR EFFECTS ---
   const [ripples, setRipples] = useState([]);
   const [sparkles, setSparkles] = useState([]);
-  
-  // Ref to throttle sparkle creation so it doesn't lag
   const lastSparkleTime = useRef(0);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // Update Cursor Position
       mouseX.set(e.clientX - CURSOR_SIZE / 2);
       mouseY.set(e.clientY - CURSOR_SIZE / 2);
 
-      // Create Sparkles (Throttled: only every 50ms or so)
+      // --- SPARKLE GENERATION ---
       const now = Date.now();
-      if (now - lastSparkleTime.current > 30) {
+      if (now - lastSparkleTime.current > 40) {
         const newSparkle = {
           id: now,
           x: e.clientX,
           y: e.clientY,
-          // Random slight offset for natural trail feel
-          offsetX: (Math.random() - 0.5) * 10,
-          offsetY: (Math.random() - 0.5) * 10,
+          offsetX: (Math.random() - 0.5) * 10, 
         };
 
         setSparkles((prev) => [...prev, newSparkle]);
         lastSparkleTime.current = now;
 
-        // Cleanup sparkle after 800ms
         setTimeout(() => {
           setSparkles((prev) => prev.filter((s) => s.id !== newSparkle.id));
         }, 800);
@@ -53,7 +49,6 @@ const GlowingCursor = () => {
         x: e.clientX,
         y: e.clientY,
       };
-      
       setRipples((prev) => [...prev, newRipple]);
 
       setTimeout(() => {
@@ -73,43 +68,36 @@ const GlowingCursor = () => {
   return (
     <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden">
       
-      {/* --- SPARKLES TRAIL --- */}
+      {/* --- SPARKLES (TRAIL) --- */}
       <AnimatePresence>
         {sparkles.map((sparkle) => (
           <motion.div
             key={sparkle.id}
-            initial={{ opacity: 1, scale: 0.8, x: sparkle.x, y: sparkle.y }}
+            initial={{ opacity: 1, scale: 0.5, x: sparkle.x, y: sparkle.y }}
             animate={{ 
               opacity: 0, 
               scale: 0, 
-              x: sparkle.x + sparkle.offsetX, 
-              y: sparkle.y + sparkle.offsetY + 20 // drift down slightly
+              x: sparkle.x + sparkle.offsetX,
+              y: sparkle.y + 40 // Gravity
             }}
-            transition={{ duration: 0.5 }}
-            className="absolute w-1 h-1 bg-cyan-300 rounded-full blur-[1px]"
-            style={{ 
-                left: 0, 
-                top: 0 
-            }}
+            transition={{ duration: 0.8, ease: "linear" }}
+            className="absolute w-1.5 h-1.5 bg-cyan-300 rounded-full blur-[0.5px]"
+            style={{ left: 0, top: 0 }}
           />
         ))}
       </AnimatePresence>
 
-      {/* --- THE GLOWING BALL (INTENSIFIED) --- */}
+      {/* --- THE MAIN CURSOR (INSTANT) --- */}
       <motion.div
         style={{ translateX: smoothX, translateY: smoothY }}
-        className="absolute top-0 left-0 w-5 h-5 bg-cyan-50 rounded-full hidden md:block"
+        className="absolute top-0 left-0 w-5 h-5 hidden md:block"
       >
-        {/* Hard Glow Layer (The "Core") */}
         <div 
-            className="absolute inset-0 rounded-full bg-cyan-400"
-            style={{ 
-                boxShadow: "0 0 15px 2px rgba(6, 182, 212, 0.8), 0 0 30px 5px rgba(59, 130, 246, 0.5)" 
-            }}
-        ></div>
-        
-        {/* Outer Halo */}
-        <div className="absolute inset-[-10px] rounded-full bg-blue-500 opacity-20 blur-md"></div>
+          className="w-full h-full bg-cyan-100 rounded-full border border-cyan-300"
+          style={{ 
+            boxShadow: "0 0 10px 2px rgba(34, 211, 238, 0.8), 0 0 20px 5px rgba(59, 130, 246, 0.4)" 
+          }}
+        />
       </motion.div>
 
       {/* --- DIRECTIONAL RIPPLES --- */}
@@ -118,24 +106,22 @@ const GlowingCursor = () => {
           <motion.div
             key={ripple.id}
             initial={{ 
-              opacity: 0.8, 
+              opacity: 1, 
               scale: 0,
               x: ripple.x, 
               y: ripple.y,
-              borderWidth: "4px"
+              borderWidth: "3px"
             }}
             animate={{ 
               opacity: 0, 
-              scale: 3, // Expands
-              // KEY CHANGE: Move x and y positive to drift Lower-Right
-              x: ripple.x + 100, 
-              y: ripple.y + 100,
+              scale: 2.5, 
+              x: ripple.x + 80, 
+              y: ripple.y + 80,
               borderWidth: "0px"
             }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="absolute top-0 left-0 w-8 h-8 rounded-full border-cyan-400"
+            className="absolute top-0 left-0 w-10 h-10 rounded-full border-cyan-400"
             style={{ 
-                // We offset by -50% in CSS to center the start point on the mouse
                 transformOrigin: "center center", 
                 translate: "-50% -50%"
             }}
