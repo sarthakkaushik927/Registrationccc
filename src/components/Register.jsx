@@ -8,13 +8,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SparklesCore } from "./ui/sparkles";
-// IMPORT SOCIAL ICONS (Keeping these from library as requested)
+// IMPORT SOCIAL ICONS
 import { Facebook, Linkedin, Instagram } from 'lucide-react';
 
 import { NetworkBackground } from './NetworkBackground';
 import { SplashScreen } from './SplashScreen';
 import { FormInput, FormSelect } from './FormComponents';
-import ChaosOrbCursor from './ChaosOrbCursor';
+
+// IMPORT THE NEW GLOWING CURSOR
+import GlowingCursor from './GlowingCursor';
 
 // --- CONFIGURATION ---
 const branches = ['CSE', 'CSE (AIML)', 'CSE (DS)', 'AIML', 'CS', 'CS (H)', 'IT', 'CSIT', 'ECE', 'EEE', 'Civil', 'Mechanical'];
@@ -73,8 +75,8 @@ export default function Register() {
   return (
     <div className="relative min-h-screen w-full flex flex-col font-sans bg-[#000000] text-white selection:bg-blue-500/30">
       
-      {/* NEW CURSOR */}
-      <ChaosOrbCursor />
+      {/* GLOWING CURSOR COMPONENT */}
+      <GlowingCursor />
 
       {/* Fixed Background */}
       <div className="fixed inset-0 z-0">
@@ -101,7 +103,7 @@ export default function Register() {
               >
                 <div className="text-center lg:text-left max-w-lg relative z-10 p-8 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/5">
                   <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-                    {/* RESTORED OLD CCC LOGO IMAGE */}
+                    {/* OLD CCC LOGO RESTORED */}
                     <img src="/cccLogo.png" alt="CCC Logo" className="w-10 h-10 object-contain" />
                     <span className="font-bold tracking-widest text-xl pt-1">CCC</span>
                   </div>
@@ -146,7 +148,6 @@ export default function Register() {
                       <p className="text-gray-400 text-sm mt-1 font-light">Event Name</p>
                     </div>
 
-                    {/* CASCADING Z-INDEX FIX */}
                     <form onSubmit={handleSubmit(onSubmit)} noValidate className="w-full flex flex-col gap-1">
 
                       <div className="relative z-[60]">
@@ -167,12 +168,10 @@ export default function Register() {
                         <FormSelect name="branch" placeholder="Branch" setValue={setValue} watch={watch} error={errors.branch} options={branches} />
                       </div>
 
-                      {/* Phone (z-40) */}
                       <div className="relative z-40">
                         <FormInput name="phone" type="tel" placeholder="Enter Phone Number" register={register} error={errors.phone} />
                       </div>
 
-                      {/* Unstop ID (z-30) */}
                       <div className="relative z-30">
                         <FormInput name="unstopId" type="text" placeholder="Enter Unstop Id or (NaN)" register={register} error={errors.unstopId} />
                       </div>
@@ -182,7 +181,6 @@ export default function Register() {
                         <FormSelect name="residence" placeholder="Select Residence" setValue={setValue} watch={watch} error={errors.residence} options={residences} />
                       </div>
 
-                      {/* ReCAPTCHA & Button (z-0) */}
                       <div className="mt-1 flex justify-center scale-90 origin-center z-0 relative">
                         <ReCAPTCHA
                           ref={recaptchaRef}
@@ -213,7 +211,7 @@ export default function Register() {
           <div className="w-full relative z-10 border-t border-blue-900/30 bg-black/60 backdrop-blur-md mt-auto">
             <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col items-center justify-center text-center">
 
-              {/* Social Icons - USING LUCIDE REACT ICONS */}
+              {/* Social Icons */}
               <div className="flex justify-center gap-6 mb-8 relative z-50">
                 <motion.a
                   href="#"
@@ -254,7 +252,7 @@ export default function Register() {
                 <div className="relative w-full h-40 flex flex-col items-center justify-start pt-4">
                     
                     <div className="flex items-center gap-4 relative z-50">
-                         {/* RESTORED OLD CCC LOGO IMAGE */}
+                         {/* OLD CCC LOGO RESTORED */}
                          <img src="/cccLogo.png" alt="CCC Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(0,170,255,0.5)]" />
                          <h1 className="text-2xl md:text-5xl font-bold text-center text-white tracking-widest drop-shadow-2xl">
                             CLOUD COMPUTING CELL
